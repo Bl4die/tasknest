@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskNest - Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #4a90e2;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #357abd;
+        }
+
+        .task-list {
+            margin-top: 25px;
+        }
+
+        .task-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 5px solid #4a90e2;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item.Completed {
+            border-left-color: #2ee09a;
+            background: #f0fdf4;
+        }
+
+        .task-item.Completed h3 {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .actions button {
+            margin-left: 5px;
+            background: #e74c3c;
+        }
+
+        .actions .comp-btn {
+            background: #2ee09a;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>TaskNest Workspace</h2>
+
+        <div class="form-group">
+            <input type="text" id="taskTitle" placeholder="Task Title">
+        </div>
+        <div class="form-group">
+            <textarea id="taskDesc" placeholder="Task Description Details..."></textarea>
+        </div>
+        <button onclick="addTask()">Create Task</button>
+
+        <div class="task-list" id="taskList"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
