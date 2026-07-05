@@ -4,87 +4,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskNest - Dashboard</title>
+    <title>TaskNest — Premium Workspace</title>
+    <!-- Google Fonts for crisp, modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-main: #0f111a;
+            --bg-card: #161925;
+            --bg-input: #1f2335;
+            --text-main: #f4f5f6;
+            --text-muted: #787f99;
+            --accent-purple: #7aa2f7;
+            --accent-purple-hover: #5b87db;
+            --status-pending: #ff9e64;
+            --status-pending-bg: rgba(255, 158, 100, 0.1);
+            --status-complete: #73daca;
+            --status-complete-bg: rgba(115, 218, 202, 0.1);
+            --danger: #f7768e;
+            --danger-bg: rgba(247, 118, 142, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f4f6f9;
-            color: #333;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 750px;
         }
 
-        h2 {
-            margin-top: 0;
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #b4befe 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Task Creation Form Panel */
+        .task-form {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            margin-bottom: 32px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
         }
 
         input[type="text"],
         textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            background-color: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
         }
 
-        button {
-            background: #4a90e2;
-            color: white;
-            padding: 10px 15px;
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--accent-purple);
+            color: #0f111a;
+            font-weight: 600;
             border: none;
-            border-radius: 4px;
+            padding: 14px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
         }
 
-        button:hover {
-            background: #357abd;
+        .btn-submit:hover {
+            background-color: var(--accent-purple-hover);
+            transform: translateY(-1px);
         }
 
+        /* Task Feed View */
         .task-list {
-            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .task-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 5px solid #4a90e2;
-            margin-bottom: 10px;
-            border-radius: 4px;
+        .task-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: var(--border-radius);
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateX(4px);
+            border-color: rgba(122, 162, 247, 0.15);
+        }
+
+        .task-info {
+            flex-grow: 1;
+        }
+
+        .task-title-row {
+            display: flex;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
         }
 
-        .task-item.Completed {
-            border-left-color: #2ee09a;
-            background: #f0fdf4;
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: var(--transition);
         }
 
-        .task-item.Completed h3 {
+        .task-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Badges styling */
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .badge-pending {
+            background-color: var(--status-pending-bg);
+            color: var(--status-pending);
+        }
+
+        .badge-completed {
+            background-color: var(--status-complete-bg);
+            color: var(--status-complete);
+        }
+
+        /* Completed State Transformations */
+        .completed .task-title {
             text-decoration: line-through;
-            color: #888;
+            color: var(--text-muted);
         }
 
-        .actions button {
-            margin-left: 5px;
-            background: #e74c3c;
+        .completed .task-desc {
+            opacity: 0.5;
         }
 
-        .actions .comp-btn {
-            background: #2ee09a;
+        /* Operational Utility Buttons */
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            align-shrink: 0;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-toggle {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .btn-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .completed .btn-toggle {
+            background-color: var(--status-complete-bg);
+            color: var(--status-complete);
+        }
+
+        .btn-delete {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger);
+            color: #0f111a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-style: italic;
         }
     </style>
 </head>
@@ -92,20 +265,131 @@
 <body>
 
     <div class="container">
-        <h2>TaskNest Workspace</h2>
+        <header>
+            <h1>TaskNest</h1>
+            <p>Engineered Task Management Dashboard</p>
+        </header>
 
-        <div class="form-group">
-            <input type="text" id="taskTitle" placeholder="Task Title">
+        <!-- Creation Form Component -->
+        <div class="task-form">
+            <div class="form-group">
+                <label for="taskTitle">Task Assignment Title</label>
+                <input type="text" id="taskTitle" placeholder="e.g., Finalize MERN backend API validation pipelines">
+            </div>
+            <div class="form-group">
+                <label for="taskDesc">Detailed Description</label>
+                <textarea id="taskDesc"
+                    placeholder="e.g., Confirm schema validation rules match strict routing criteria..."></textarea>
+            </div>
+            <button class="btn-submit" onclick="addTask()">Add Milestone Task</button>
         </div>
-        <div class="form-group">
-            <textarea id="taskDesc" placeholder="Task Description Details..."></textarea>
-        </div>
-        <button onclick="addTask()">Create Task</button>
 
+        <!-- Dynamic Output Feed Container -->
         <div class="task-list" id="taskList"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const API_URL = 'http://localhost:5000/api/tasks';
+
+        // Load tasks right away on startup
+        document.addEventListener('DOMContentLoaded', fetchTasks);
+
+        // GET: Fetch and Render from MongoDB
+        async function fetchTasks() {
+            try {
+                const response = await fetch(API_URL);
+                const tasks = await response.json();
+                const container = document.getElementById('taskList');
+                container.innerHTML = '';
+
+                if (tasks.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No current tasks in the backlog feed.</div>';
+                    return;
+                }
+
+                tasks.forEach(task => {
+                    const isCompleted = task.status === 'Completed';
+
+                    // Assign dynamic badges based on string states returned
+                    const badgeHTML = isCompleted
+                        ? `<span class="badge badge-completed">Completed</span>`
+                        : `<span class="badge badge-pending">Pending</span>`;
+
+                    const card = document.createElement('div');
+                    card.className = `task-card ${isCompleted ? 'completed' : ''}`;
+                    card.innerHTML = `
+                        <div class="task-info">
+                            <div class="task-title-row">
+                                <h3 class="task-title">${task.title}</h3>
+                                ${badgeHTML}
+                            </div>
+                            <p class="task-desc">${task.description || 'No detailed log provided.'}</p>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-action btn-toggle" onclick="toggleTask('${task._index || task._id}')">
+                                ${isCompleted ? 'Undo' : 'Complete'}
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteTask('${task._index || task._id}')">
+                                Delete
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error syncing layout with database stream:', err);
+            }
+        }
+
+        // POST: Add new task mapping context
+        async function addTask() {
+            const titleInput = document.getElementById('taskTitle');
+            const descInput = document.getElementById('taskDesc');
+
+            if (!titleInput.value.trim()) {
+                alert('Please provide a working title for the target milestone task.');
+                return;
+            }
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: titleInput.value.trim(),
+                        description: descInput.value.trim()
+                    })
+                });
+
+                titleInput.value = '';
+                descInput.value = '';
+                fetchTasks(); // Refresh feed view
+            } catch (err) {
+                console.error('Error posting to endpoint:', err);
+            }
+        }
+
+        // PUT: State Toggling (Pending <-> Completed)
+        async function toggleTask(id) {
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'PUT' });
+                fetchTasks();
+            } catch (err) {
+                console.error('Error running status toggle update:', err);
+            }
+        }
+
+        // DELETE: Wipe task from backend collection
+        async function deleteTask(id) {
+            if (!confirm('Are you certain you want to clear out this tracked item snapshot permanently?')) return;
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                fetchTasks();
+            } catch (err) {
+                console.error('Error processing item deletion extraction:', err);
+            }
+        }
+    </script>
 </body>
 
 </html>
