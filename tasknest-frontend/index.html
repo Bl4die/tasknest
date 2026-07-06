@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskNest — Premium Workspace</title>
-    <!-- Google Fonts for crisp, modern typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -40,16 +39,78 @@
             display: flex;
             justify-content: center;
             padding: 40px 20px;
+            position: relative;
         }
 
         .container {
             width: 100%;
             max-width: 750px;
+            display: none;
+            /* Hidden until logged in */
         }
 
+        /* Modern Auth Screen Cover Layer */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #b4befe 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .auth-toggle-text {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .auth-toggle-text span {
+            color: var(--accent-purple);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .auth-toggle-text span:hover {
+            text-decoration: underline;
+        }
+
+        /* Shared Dashboard Layout Classes */
         header {
             margin-bottom: 32px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         header h1 {
@@ -59,15 +120,30 @@
             background: linear-gradient(135deg, #b4befe 0%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
         }
 
-        header p {
+        .user-badge-logout {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.05);
             color: var(--text-muted);
-            font-size: 0.95rem;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
         }
 
-        /* Task Creation Form Panel */
+        .btn-logout:hover {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
+
         .task-form {
             background-color: var(--bg-card);
             border: 1px solid rgba(255, 255, 255, 0.03);
@@ -92,6 +168,7 @@
         }
 
         input[type="text"],
+        input[type="password"],
         textarea {
             width: 100%;
             background-color: var(--bg-input);
@@ -105,6 +182,7 @@
         }
 
         input[type="text"]:focus,
+        input[type="password"]:focus,
         textarea:focus {
             border-color: var(--accent-purple);
             box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.15);
@@ -133,7 +211,6 @@
             transform: translateY(-1px);
         }
 
-        /* Task Feed View */
         .task-list {
             display: flex;
             flex-direction: column;
@@ -181,7 +258,6 @@
             line-height: 1.5;
         }
 
-        /* Badges styling */
         .badge {
             font-size: 0.75rem;
             font-weight: 600;
@@ -202,7 +278,6 @@
             color: var(--status-complete);
         }
 
-        /* Completed State Transformations */
         .completed .task-title {
             text-decoration: line-through;
             color: var(--text-muted);
@@ -212,11 +287,10 @@
             opacity: 0.5;
         }
 
-        /* Operational Utility Buttons */
         .task-actions {
             display: flex;
             gap: 8px;
-            align-shrink: 0;
+            flex-shrink: 0;
         }
 
         .btn-action {
@@ -264,13 +338,40 @@
 
 <body>
 
-    <div class="container">
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2 id="authTitle">Sign In</h2>
+            <p id="authSubtitle">Access your engineering workspace</p>
+
+            <div class="form-group" style="text-align: left;">
+                <label>Username</label>
+                <input type="text" id="authUsername" placeholder="Enter username">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Password</label>
+                <input type="password" id="authPassword" placeholder="••••••••">
+            </div>
+
+            <button class="btn-submit" id="authBtn" onclick="handleAuthSubmit()">Login</button>
+
+            <div class="auth-toggle-text" id="authToggleMsg">
+                Don't have an account? <span onclick="toggleAuthMode()">Create One</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainDashboard">
         <header>
-            <h1>TaskNest</h1>
-            <p>Engineered Task Management Dashboard</p>
+            <div>
+                <h1>TaskNest</h1>
+                <p>Engineered Task Management Dashboard</p>
+            </div>
+            <div class="user-badge-logout">
+                <span id="welcomeUser" style="font-size: 0.9rem; color: var(--accent-purple);"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
         </header>
 
-        <!-- Creation Form Component -->
         <div class="task-form">
             <div class="form-group">
                 <label for="taskTitle">Task Assignment Title</label>
@@ -278,26 +379,96 @@
             </div>
             <div class="form-group">
                 <label for="taskDesc">Detailed Description</label>
-                <textarea id="taskDesc"
-                    placeholder="e.g., Confirm schema validation rules match strict routing criteria..."></textarea>
+                <textarea id="taskDesc" placeholder="e.g., Confirm schema validation rules match..."></textarea>
             </div>
             <button class="btn-submit" onclick="addTask()">Add Milestone Task</button>
         </div>
 
-        <!-- Dynamic Output Feed Container -->
         <div class="task-list" id="taskList"></div>
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5000/api/tasks';
+        const API_TASKS = 'http://localhost:5000/api/tasks';
+        const API_AUTH = 'http://localhost:5000/api/auth';
+        let isLoginMode = true;
 
-        // Load tasks right away on startup
-        document.addEventListener('DOMContentLoaded', fetchTasks);
+        function getAuthHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('tasknest_token')}`
+            };
+        }
 
-        // GET: Fetch and Render from MongoDB
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('tasknest_user');
+            if (savedUser) {
+                showDashboard(savedUser);
+            }
+        });
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? 'Sign In' : 'Register Account';
+            document.getElementById('authSubtitle').innerText = isLoginMode ? 'Access your engineering workspace' : 'Create an encrypted profile credentials context';
+            document.getElementById('authBtn').innerText = isLoginMode ? 'Login' : 'Register';
+            document.getElementById('authToggleMsg').innerHTML = isLoginMode
+                ? `Don't have an account? <span onclick="toggleAuthMode()">Create One</span>`
+                : `Already have an account? <span onclick="toggleAuthMode()">Sign In</span>`;
+        }
+
+        async function handleAuthSubmit() {
+            const uInput = document.getElementById('authUsername').value.trim();
+            const pInput = document.getElementById('authPassword').value;
+
+            if (!uInput || !pInput) {
+                alert('Please fill out all credentials paths.');
+                return;
+            }
+
+            const endpoint = isLoginMode ? `${API_AUTH}/login` : `${API_AUTH}/register`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: uInput, password: pInput })
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || 'Authentication sequence failed.');
+                    return;
+                }
+
+                if (isLoginMode) {
+                    localStorage.setItem('tasknest_user', data.username);
+                    localStorage.setItem('tasknest_token', data.token);
+                    showDashboard(data.username);
+                } else {
+                    alert('Registration successful! Redirecting to Sign In.');
+                    toggleAuthMode();
+                }
+            } catch (err) {
+                console.error('Auth system stream error:', err);
+            }
+        }
+
+        function showDashboard(username) {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('mainDashboard').style.display = 'block';
+            document.getElementById('welcomeUser').innerText = `@${username}`;
+            fetchTasks();
+        }
+
+        function logout() {
+            localStorage.removeItem('tasknest_user');
+            localStorage.removeItem('tasknest_token');
+            window.location.reload();
+        }
+
         async function fetchTasks() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_TASKS, { headers: getAuthHeaders() });
                 const tasks = await response.json();
                 const container = document.getElementById('taskList');
                 container.innerHTML = '';
@@ -309,8 +480,6 @@
 
                 tasks.forEach(task => {
                     const isCompleted = task.status === 'Completed';
-
-                    // Assign dynamic badges based on string states returned
                     const badgeHTML = isCompleted
                         ? `<span class="badge badge-completed">Completed</span>`
                         : `<span class="badge badge-pending">Pending</span>`;
@@ -318,22 +487,22 @@
                     const card = document.createElement('div');
                     card.className = `task-card ${isCompleted ? 'completed' : ''}`;
                     card.innerHTML = `
-                        <div class="task-info">
-                            <div class="task-title-row">
-                                <h3 class="task-title">${task.title}</h3>
-                                ${badgeHTML}
-                            </div>
-                            <p class="task-desc">${task.description || 'No detailed log provided.'}</p>
-                        </div>
-                        <div class="task-actions">
-                            <button class="btn-action btn-toggle" onclick="toggleTask('${task._index || task._id}')">
-                                ${isCompleted ? 'Undo' : 'Complete'}
-                            </button>
-                            <button class="btn-action btn-delete" onclick="deleteTask('${task._index || task._id}')">
-                                Delete
-                            </button>
-                        </div>
-                    `;
+                <div class="task-info">
+                    <div class="task-title-row">
+                        <h3 class="task-title">${task.title}</h3>
+                        ${badgeHTML}
+                    </div>
+                    <p class="task-desc">${task.description || 'No detailed log provided.'}</p>
+                </div>
+                <div class="task-actions">
+                    <button class="btn-action btn-toggle" onclick="toggleTask('${task._id}')">
+                        ${isCompleted ? 'Undo' : 'Complete'}
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteTask('${task._id}')">
+                        Delete
+                    </button>
+                </div>
+            `;
                     container.appendChild(card);
                 });
             } catch (err) {
@@ -341,7 +510,6 @@
             }
         }
 
-        // POST: Add new task mapping context
         async function addTask() {
             const titleInput = document.getElementById('taskTitle');
             const descInput = document.getElementById('taskDesc');
@@ -352,9 +520,9 @@
             }
 
             try {
-                await fetch(API_URL, {
+                await fetch(API_TASKS, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({
                         title: titleInput.value.trim(),
                         description: descInput.value.trim()
@@ -363,27 +531,25 @@
 
                 titleInput.value = '';
                 descInput.value = '';
-                fetchTasks(); // Refresh feed view
+                fetchTasks();
             } catch (err) {
                 console.error('Error posting to endpoint:', err);
             }
         }
 
-        // PUT: State Toggling (Pending <-> Completed)
         async function toggleTask(id) {
             try {
-                await fetch(`${API_URL}/${id}`, { method: 'PUT' });
+                await fetch(`${API_TASKS}/${id}`, { method: 'PUT', headers: getAuthHeaders() });
                 fetchTasks();
             } catch (err) {
                 console.error('Error running status toggle update:', err);
             }
         }
 
-        // DELETE: Wipe task from backend collection
         async function deleteTask(id) {
             if (!confirm('Are you certain you want to clear out this tracked item snapshot permanently?')) return;
             try {
-                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                await fetch(`${API_TASKS}/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 fetchTasks();
             } catch (err) {
                 console.error('Error processing item deletion extraction:', err);
