@@ -1,53 +1,52 @@
 const express = require('express');
 const router = express.Router();
-const Task = require('../models/Task'); // Links to the model above
+const Task = require('../models/Task');
+const auth = require('../middleware/auth'); // Import our security guard
 
-// Get all tasks
-router.get('/', async (req, res) => {
+// 1. Get ONLY the logged-in user's tasks
+router.get('/', auth, async (req, res) => {
     try {
-        const tasks = await Task.find().sort({ createdAt: -1 });
+        const tasks = await Task.find({ user: req.user }).sort({ createdAt: -1 });
         res.json(tasks);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Create a task
-router.post('/', async (req, res) => {
+// 2. Create a task linked to the user
+router.post('/', auth, async (req, res) => {
     try {
-        const savedTask = await Task.create(req.body);
+        const newTask = new Task({
+            title: req.body.title,
+            description: req.body.description,
+            user: req.user // Attach the user ID from the middleware
+        });
+        const savedTask = await newTask.save();
         res.status(201).json(savedTask);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// Toggle task status (Complete / Undo)
-router.put('/:id', async (req, res) => {
+// 3. Toggle status safely
+router.put('/:id', auth, async (req, res) => {
     try {
-        // 1. Find the current task first to see its current status
-        const currentTask = await Task.findById(req.params.id);
+        const currentTask = await Task.findOne({ _id: req.params.id, user: req.user });
+        if (!currentTask) return res.status(404).json({ error: 'Task not found' });
 
-        // 2. Determine the new target status
-        const newStatus = currentTask.status === 'Completed' ? 'Pending' : 'Completed';
-
-        // 3. Update it with the toggled status
-        const updatedTask = await Task.findByIdAndUpdate(
-            req.params.id,
-            { status: newStatus },
-            { new: true }
-        );
-
-        res.json(updatedTask);
+        currentTask.status = currentTask.status === 'Completed' ? 'Pending' : 'Completed';
+        await currentTask.save();
+        res.json(currentTask);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// Delete a task
-router.delete('/:id', async (req, res) => {
+// 4. Delete task safely
+router.delete('/:id', auth, async (req, res) => {
     try {
-        await Task.findByIdAndDelete(req.params.id);
+        const result = await Task.findOneAndDelete({ _id: req.params.id, user: req.user });
+        if (!result) return res.status(404).json({ error: 'Task not found' });
         res.json({ message: 'Task deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
